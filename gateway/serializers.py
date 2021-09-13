@@ -8,7 +8,6 @@ class GatewaySerializer(serializers.ModelSerializer):
         fields = ("site_owner", "gateway_id", "authentication_token")
 
 
-class GatewayRecordSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GatewayRecord
-        fields = ("token", "gateway", "timestamp")
+class GatewayRecordSerializer(serializers.Serializer):
+    token_uuid = serializers.CharField(max_length=16)
+    gateway_id = serializers.CharField(max_length=15)
