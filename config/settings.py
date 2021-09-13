@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     # 3rd-party
     "corsheaders",
     "rest_framework",
-    "knox",
     # Local
     "gateway",
 ]
@@ -50,7 +49,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "knox.auth.TokenAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
     ],
 }
 
@@ -120,7 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = "gateway.User"
+AUTH_USER_MODEL = "gateway.SiteOwner"
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
