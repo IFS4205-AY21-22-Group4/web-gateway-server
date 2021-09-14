@@ -73,6 +73,7 @@ class Identity(models.Model):
     phone_num = models.CharField(max_length=8, unique=True)
 
     class Meta:
+        managed = False
         db_table = "identity"
 
 
@@ -84,7 +85,18 @@ class Token(models.Model):
     hashed_pin = models.CharField(max_length=32)
 
     class Meta:
+        managed = False
         db_table = "token"
+
+
+class MedicalRecord(models.Model):
+    identity = models.OneToOneField(Identity, on_delete=models.PROTECT)
+    token = models.ForeignKey(Token, on_delete=models.PROTECT)
+    vaccination_status = models.BooleanField(default=False)
+
+    class Meta:
+        managed = False
+        db_table = "medicalrecords"
 
 
 class GatewayRecord(models.Model):
