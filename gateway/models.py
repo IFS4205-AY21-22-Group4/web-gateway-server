@@ -6,7 +6,7 @@ class UserManager(BaseUserManager):
 
     use_in_migrations = True
 
-    def create_user(self, email, postal_code, unit_no, password=None):
+    def create_user(self, email, password=None):
         """
         Creates and saves a user with the given email and password.
         """
@@ -17,40 +17,47 @@ class UserManager(BaseUserManager):
 
         user = self.model(
             email=self.normalize_email(email),
-            postal_code=postal_code,
-            unit_no=unit_no,
         )
 
         user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, email, postal_code, unit_no, password=None):
+    def create_superuser(self, email, password=None):
         """
         Creates and saves a superuser with the given email and password.
         """
-        user = self.create_user(email, postal_code, unit_no, password=password)
+        user = self.create_user(email, password=password)
         user.is_staff = True
         user.is_superuser = True
         user.save()
         return user
 
 
-class SiteOwner(AbstractUser):
+class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
-    postal_code = models.CharField(max_length=6)
-    unit_no = models.CharField(max_length=6)
 
     objects = UserManager()
 
     USERNAME_FIELD = "email"  # use email to recognize User
-    REQUIRED_FIELDS = ["postal_code", "unit_no"]
+    REQUIRED_FIELDS = []
 
     def __str__(self):
         return self.email
 
     class Meta:
+        managed = False
+        db_table = "user"
+
+
+class SiteOwner(models.Model):
+    user = models.OneToOneField(User, on_delete=models.PROTECT, primary_key=True)
+    postal_code = models.CharField(max_length=6)
+    unit_no = models.CharField(max_length=6)
+
+    class Meta:
+        managed = False
         db_table = "siteowner"
 
 
