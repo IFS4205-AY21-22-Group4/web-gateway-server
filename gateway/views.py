@@ -1,10 +1,31 @@
 from django.contrib.auth import login
+from django.middleware.csrf import get_token
+from django.views.decorators.csrf import ensure_csrf_cookie
+
 from rest_framework import generics
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from knox.views import LoginView as KnoxLoginView
 from .models import Gateway, SiteOwner, Token, GatewayRecord
 from .serializers import GatewaySerializer, GatewayRecordSerializer
+
+
+def get_csrf(request):
+    response = Response("CSRF cookie set")
+    response["X-CSRFToken"] = get_token(request)
+    return response
+
+
+class LoginView(KnoxLoginView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, format=None):
+        serializer = AuthTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data["user"]
+        login(request, user)
+        return super(LoginView, self).post(request, format=None)
 
 
 class GatewayListCreate(generics.ListCreateAPIView):
@@ -16,14 +37,16 @@ class GatewayListCreate(generics.ListCreateAPIView):
         This method returns a list of all gateways for the current authenticated
         user.
         """
-        site_owner = self.request.user
+        user = self.request.user
+        site_owner = SiteOwner.objects.get(user=user)
         return Gateway.objects.filter(site_owner=site_owner)
 
     def post(self, request, format=None):
         """
         This method adds a gateway for the current authenticated user.
         """
-        site_owner = self.request.user
+        user = self.request.user
+        site_owner = SiteOwner.objects.get(user=user)
         num_gateways = Gateway.objects.filter(site_owner=site_owner).count()
         next_index = num_gateways + 1
 

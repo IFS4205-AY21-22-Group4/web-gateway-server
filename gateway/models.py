@@ -70,6 +70,7 @@ class Gateway(models.Model):
         return self.gateway_id
 
     class Meta:
+        managed = False
         db_table = "gateway"
 
 
@@ -112,4 +113,5 @@ class GatewayRecord(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        managed = False
         db_table = "gatewayrecord"
