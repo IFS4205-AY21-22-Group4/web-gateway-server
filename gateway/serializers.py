@@ -9,5 +9,5 @@ class GatewaySerializer(serializers.ModelSerializer):
 
 
 class GatewayRecordSerializer(serializers.Serializer):
-    token_uuid = serializers.CharField(max_length=16)
+    token_uuid = serializers.CharField(max_length=36)
     gateway_id = serializers.CharField(max_length=15)

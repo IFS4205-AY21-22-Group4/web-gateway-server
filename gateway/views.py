@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import permissions
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
-from .models import Gateway, SiteOwner, Token, GatewayRecord
+from .models import Gateway, MedicalRecord, SiteOwner, Token, GatewayRecord
 from .serializers import GatewaySerializer, GatewayRecordSerializer
 
 
@@ -67,15 +67,29 @@ class GatewayRecordCreate(generics.CreateAPIView):
         serializer = GatewayRecordSerializer(data=request.data)
         if serializer.is_valid():
             token_uuid = serializer.validated_data.get("token_uuid")
-            token = Token.objects.get(token_uuid=token_uuid)
+            token = Token.objects.filter(token_uuid=token_uuid).first()
             gateway_id = serializer.validated_data.get("gateway_id")
-            gateway = Gateway.objects.get(gateway_id=gateway_id)
+            gateway = Gateway.objects.filter(gateway_id=gateway_id).first()
 
+            # Check valid token
             if token is None or gateway is None:
                 return Response("Invalid token_uuid or gateway_id")
 
+            # Check gateway belongs to authenticated site owner
+            user = self.request.user
+            site_owner = SiteOwner.objects.get(user=user)
+
+            if gateway.site_owner != site_owner:
+                return Response("Invalid gateway_id")
+
+            # Check active token
             if token.status != 1:
                 return Response("Token inactive")
+
+            # Get vaccination status
+            medical_record = MedicalRecord.objects.get(identity=token.owner)
+            if medical_record.vaccination_status != True:
+                return Response("Person is not vaccinated")
 
             gateway_record = GatewayRecord(
                 token=token,
@@ -83,4 +97,4 @@ class GatewayRecordCreate(generics.CreateAPIView):
             )
             gateway_record.save()
             return Response("Added gateway record")
-        return Response("TODO create gateway record")
+        return Response("Invalid")
