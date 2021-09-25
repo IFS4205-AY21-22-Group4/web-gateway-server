@@ -3,18 +3,13 @@ from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from rest_framework import generics
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
 from .models import Gateway, MedicalRecord, SiteOwner, Token, GatewayRecord
 from .serializers import GatewaySerializer, GatewayRecordSerializer
-
-
-def get_csrf(request):
-    response = Response("CSRF cookie set")
-    response["X-CSRFToken"] = get_token(request)
-    return response
 
 
 class LoginView(KnoxLoginView):
@@ -28,25 +23,30 @@ class LoginView(KnoxLoginView):
         return super(LoginView, self).post(request, format=None)
 
 
-class GatewayListCreate(generics.ListCreateAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = GatewaySerializer
+class GatewayAPI(APIView):
+    """
+    List all gateways, or create/delete gateway from the back.
 
-    def get_queryset(self):
+    * Requires user to be authenticated
+    """
+
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, format=None):
         """
         This method returns a list of all gateways for the current authenticated
         user.
         """
-        user = self.request.user
-        site_owner = SiteOwner.objects.get(user=user)
-        return Gateway.objects.filter(site_owner=site_owner)
+        site_owner = SiteOwner.objects.get(user=self.request.user)
+        gateways = Gateway.objects.filter(site_owner=site_owner)
+        serializer = GatewaySerializer(gateways, many=True)
+        return Response(serializer.data)
 
     def post(self, request, format=None):
         """
-        This method adds a gateway for the current authenticated user.
+        This method adds a gateway from the back for the current authenticated user.
         """
-        user = self.request.user
-        site_owner = SiteOwner.objects.get(user=user)
+        site_owner = SiteOwner.objects.get(user=self.request.user)
         num_gateways = Gateway.objects.filter(site_owner=site_owner).count()
         next_index = num_gateways + 1
 
@@ -57,7 +57,24 @@ class GatewayListCreate(generics.ListCreateAPIView):
             site_owner=site_owner,
         )
         gateway.save()
-        return Response("Succesfully added gateway.")
+
+        serializer = GatewaySerializer(gateway)
+        return Response(serializer.data)
+
+    def delete(self, request, format=None):
+        """
+        This method removes a gateway from the back for the current authenticated user.
+        """
+        site_owner = SiteOwner.objects.get(user=self.request.user)
+        gateway_to_delete = (
+            Gateway.objects.filter(site_owner=site_owner).order_by("gateway_id").last()
+        )
+        if gateway_to_delete is None:
+            return Response("No gateways available to delete", 404)
+
+        serializer = GatewaySerializer(gateway_to_delete)
+        gateway_to_delete.delete()
+        return Response(serializer.data)
 
 
 class GatewayRecordCreate(generics.CreateAPIView):
