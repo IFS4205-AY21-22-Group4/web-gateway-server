@@ -1,7 +1,4 @@
 from django.contrib.auth import login
-from django.middleware.csrf import get_token
-from django.views.decorators.csrf import ensure_csrf_cookie
-
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response

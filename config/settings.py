@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     # 3rd-party
     "corsheaders",
     "rest_framework",
+    "knox",
     # Local
     "gateway",
 ]
@@ -49,7 +50,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.BasicAuthentication",
+        "knox.auth.TokenAuthentication",
     ],
 }
 
@@ -96,7 +97,8 @@ DATABASES = {
         "PASSWORD": "mariadb",
         "DEFAULT_CHARSET": "utf-8",
         "HOST": "127.0.0.1",
-        "PORT": "3306",
+        "PORT": "3307",
+        "TEST": {"NAME": "pandemic_project"},
     }
 }
 
@@ -145,8 +147,9 @@ STATIC_URL = "/static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# corsheaders
+# Additional settings
 
 CORS_ORIGIN_WHITELIST = [
-    "http://localhost:3000",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
 ]
