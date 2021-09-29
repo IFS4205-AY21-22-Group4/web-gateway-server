@@ -14,8 +14,8 @@ jobs:
     - name: Set up MariaDB 10.6
       uses: getong/mariadb-action@v1.1
       with:
-        host port: 3306
-        container port: 3307
+        host port: 3307
+        container port: 3306
         character set server: 'utf8'
         mariadb version: '10.6.4'
         mysql database: 'pandemic_project'
