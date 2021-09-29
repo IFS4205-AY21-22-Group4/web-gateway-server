@@ -36,6 +36,7 @@ jobs:
     - name: Check code format with black
       run: |
         black . --check
+        
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -49,4 +50,3 @@ jobs:
     - name: Run Tests
       run: |
         python manage.py test --keepdb
-      
