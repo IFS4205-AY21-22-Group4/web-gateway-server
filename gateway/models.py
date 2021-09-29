@@ -47,7 +47,7 @@ class User(AbstractUser):
         return self.email
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "user"
 
 
@@ -57,7 +57,7 @@ class SiteOwner(models.Model):
     unit_no = models.CharField(max_length=6)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "siteowner"
 
 
@@ -70,7 +70,7 @@ class Gateway(models.Model):
         return self.gateway_id
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "gateway"
 
 
@@ -81,7 +81,7 @@ class Identity(models.Model):
     phone_num = models.CharField(max_length=8, unique=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "identity"
 
 
@@ -93,7 +93,7 @@ class Token(models.Model):
     hashed_pin = models.CharField(max_length=32)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "token"
 
 
@@ -103,7 +103,7 @@ class MedicalRecord(models.Model):
     vaccination_status = models.BooleanField(default=False)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "medicalrecords"
 
 
@@ -113,5 +113,5 @@ class GatewayRecord(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "gatewayrecord"
