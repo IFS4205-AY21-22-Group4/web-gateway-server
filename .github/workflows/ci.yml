@@ -9,6 +9,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Shutdown Ubuntu mysql
+      run: sudo service mysql stop
+    - name: Set up MariaDB 10.6
+      uses: getong/mariadb-action@v1.1
+      with:
+        host port: 3306
+        container port: 3307
+        character set server: 'utf8'
+        mariadb version: '10.6.4'
+        mysql database: 'pandemic_project'
+        mysql root password: ${{ secrets.MARIADB_ROOT_PASSWORD }}
+        mysql user: 'mariadb'
+        mysql password: ${{ secrets.MARIADB_USER_PASSWORD }}
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
