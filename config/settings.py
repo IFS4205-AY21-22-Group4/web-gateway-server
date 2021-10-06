@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-hh=j=(s6(hpfq@56w=%j$-a-o5@sc3c^qzior4mv$va(d#cl+f"
+SECRET_KEY = "django-insecure-p80rw_)3!yyk%j5*9df+r3k8v@t%f!0=v2nxr62cls-40njb1w"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,7 +37,22 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # 3rd-party
+    "corsheaders",
+    "rest_framework",
+    "knox",
+    # Local
+    "gateway",
 ]
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "knox.auth.TokenAuthentication",
+    ],
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -47,6 +62,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -76,12 +92,13 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "mariadb",
+        "NAME": "pandemic_project",
         "USER": "mariadb",
         "PASSWORD": "mariadb",
         "DEFAULT_CHARSET": "utf-8",
-        "HOST": "db",
-        "PORT": 3306,
+        "HOST": "127.0.0.1",
+        "PORT": "3306",
+        "TEST": {"NAME": "pandemic_project"},
     }
 }
 
@@ -104,6 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = "gateway.User"
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
@@ -128,3 +146,10 @@ STATIC_URL = "/static/"
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Additional settings
+
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+]
