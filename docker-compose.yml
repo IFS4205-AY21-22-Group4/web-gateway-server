@@ -1,18 +1,6 @@
 version: "3.9"
 
 services:
-  db:
-    image: mariadb:10.6
-    platform: linux/amd64
-    volumes:
-      - mariadb_data:/var/lib/mysql
-    environment:
-      - MARIADB_ROOT_PASSWORD=mariadb
-      - MARIADB_DATABASE=mariadb
-      - MARIADB_USER=mariadb
-      - MARIADB_PASSWORD=mariadb
-    ports:
-      - "3306:3306"
   web:
     build: .
     platform: linux/amd64
@@ -21,8 +9,9 @@ services:
       - .:/code
     ports:
       - "8000:8000"
-    depends_on:
-      - db
 
-volumes:
-  mariadb_data:
+# assuming database up and running using docker-compose
+networks:
+  default:
+    external: true
+    name: ifs4205-database_default
