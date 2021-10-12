@@ -1,4 +1,5 @@
 from django.contrib.auth import login
+from django.http import Http404
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -7,6 +8,8 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
 from .models import Gateway, MedicalRecord, SiteOwner, Token, GatewayRecord
 from .serializers import GatewaySerializer, GatewayRecordSerializer
+from cryptography.hazmat.primitives import hashes
+import binascii
 
 
 class LoginView(KnoxLoginView):
@@ -17,10 +20,11 @@ class LoginView(KnoxLoginView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
         login(request, user)
+        print("login passed")
         return super(LoginView, self).post(request, format=None)
 
 
-class GatewayAPI(APIView):
+class GatewayList(APIView):
     """
     List all gateways, or create/delete gateway from the back.
 
@@ -71,6 +75,60 @@ class GatewayAPI(APIView):
 
         serializer = GatewaySerializer(gateway_to_delete)
         gateway_to_delete.delete()
+        return Response(serializer.data)
+
+
+class GatewayDetail(APIView):
+    """
+    Updates  authentication token of specified gateway.
+
+    * Requires user to be authenticated
+    """
+
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self, pk):
+        try:
+            return Gateway.objects.get(id=pk)
+        except Gateway.DoesNotExist:
+            raise Http404
+
+    def put(self, request, pk, format=None):
+        """
+        This method updates the authentication token of the gateway.
+        """
+        gateway = self.get_object(pk)
+
+        # Get token value
+        auth = self.request.headers["Authorization"].split()
+        if auth[0].lower() != "token":
+            return Response(404)
+        if len(auth) == 1:
+            return Response(404)
+        elif len(auth) > 2:
+            return Response(404)
+        token = auth[1]
+        digest = hashes.Hash(hashes.SHA256())
+        digest.update(binascii.unhexlify(token))
+        token_hash = binascii.hexlify(digest.finalize()).decode()
+
+        site_owner = SiteOwner.objects.get(user=self.request.user)
+        gateways = Gateway.objects.filter(site_owner=site_owner)
+
+        # Toggle token value
+        if gateway.authentication_token == None:
+            # Start gateway
+            # Check that current token key has not been used
+            for check_gateway in gateways:
+                if token_hash == check_gateway.authentication_token:
+                    return Response("Token already used", 403)
+            gateway.authentication_token = token_hash
+        else:
+            # Stop gateway
+            gateway.authentication_token = None
+        gateway.save()
+
+        serializer = GatewaySerializer(gateway)
         return Response(serializer.data)
 
 
