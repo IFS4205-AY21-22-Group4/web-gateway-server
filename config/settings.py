@@ -96,7 +96,7 @@ DATABASES = {
         "USER": "mariadb",
         "PASSWORD": "mariadb",
         "DEFAULT_CHARSET": "utf-8",
-        "HOST": "127.0.0.1",
+        "HOST": "db",
         "PORT": "3306",
         "TEST": {"NAME": "pandemic_project"},
     }
@@ -141,6 +141,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "static"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -149,7 +150,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Additional settings
 
-CORS_ORIGIN_WHITELIST = [
+CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
     "http://127.0.0.1:8080",
 ]
