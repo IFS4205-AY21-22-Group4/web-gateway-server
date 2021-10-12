@@ -64,7 +64,7 @@ class SiteOwner(models.Model):
 class Gateway(models.Model):
     gateway_id = models.CharField(max_length=15, unique=True)
     site_owner = models.ForeignKey(SiteOwner, on_delete=models.CASCADE)
-    authentication_token = models.CharField(max_length=40, blank=True)
+    authentication_token = models.CharField(max_length=64, blank=False, null=True)
 
     def __str__(self):
         return self.gateway_id
