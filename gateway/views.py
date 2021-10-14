@@ -48,6 +48,8 @@ class GatewayList(APIView):
         """
         site_owner = SiteOwner.objects.get(user=self.request.user)
         num_gateways = Gateway.objects.filter(site_owner=site_owner).count()
+        if num_gateways == 4:
+            return Response("Maximum number of gateways")
         next_index = num_gateways + 1
 
         gateway_id = f"{site_owner.postal_code}-{site_owner.unit_no}-{next_index}"
@@ -70,7 +72,7 @@ class GatewayList(APIView):
             Gateway.objects.filter(site_owner=site_owner).order_by("gateway_id").last()
         )
         if gateway_to_delete is None:
-            return Response("No gateways available to delete", 404)
+            return Response("No gateways available to delete")
 
         serializer = GatewaySerializer(gateway_to_delete)
         gateway_to_delete.delete()
@@ -120,7 +122,7 @@ class GatewayDetail(APIView):
             # Check that current token key has not been used
             for check_gateway in gateways:
                 if token_hash == check_gateway.authentication_token:
-                    return Response("Token already used", 403)
+                    return Response("Token already used")
             gateway.authentication_token = token_hash
         else:
             # Stop gateway
@@ -141,6 +143,7 @@ class GatewayRecordCreate(generics.CreateAPIView):
             token = Token.objects.filter(token_uuid=token_uuid).first()
             gateway_id = serializer.validated_data.get("gateway_id")
             gateway = Gateway.objects.filter(gateway_id=gateway_id).first()
+            # pin = serializer.validate_data.get("pin")
 
             # Check valid token
             if token is None or gateway is None:
@@ -152,6 +155,9 @@ class GatewayRecordCreate(generics.CreateAPIView):
 
             if gateway.site_owner != site_owner:
                 return Response("Invalid gateway_id")
+
+            # Check Token belongs to owner
+            # TODO Verify PIN number entered
 
             # Check active token
             if token.status != 1:

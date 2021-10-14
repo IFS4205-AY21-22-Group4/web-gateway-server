@@ -5,7 +5,7 @@ from .models import Gateway, GatewayRecord, Token
 class GatewaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Gateway
-        fields = ("id", "site_owner", "gateway_id", "authentication_token")
+        fields = ("id", "gateway_id", "authentication_token")
 
 
 class GatewayRecordSerializer(serializers.Serializer):
