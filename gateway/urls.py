@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import (
     LoginView,
+    RegisterView,
     GatewayList,
     GatewayDetail,
     GatewayRecordCreate,
@@ -9,6 +10,7 @@ from .views import (
 from knox import views as knox_views
 
 urlpatterns = [
+    path("register/", RegisterView.as_view()),
     path("login/", LoginView.as_view(), name="knox_login"),
     path("logout/", knox_views.LogoutView.as_view(), name="knox_logout"),
     path("v1/gateways/", GatewayList.as_view()),

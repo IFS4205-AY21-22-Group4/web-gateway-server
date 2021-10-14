@@ -7,7 +7,12 @@ from rest_framework import permissions
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
 from .models import Gateway, MedicalRecord, SiteOwner, Token, GatewayRecord
-from .serializers import GatewaySerializer, GatewayRecordSerializer, TokenSerializer
+from .serializers import (
+    GatewaySerializer,
+    GatewayRecordSerializer,
+    TokenSerializer,
+    SiteOwnerSerializer,
+)
 from cryptography.hazmat.primitives import hashes
 import binascii
 
@@ -21,6 +26,15 @@ class LoginView(KnoxLoginView):
         user = serializer.validated_data["user"]
         login(request, user)
         return super(LoginView, self).post(request, format=None)
+
+
+class RegisterView(generics.CreateAPIView):
+    """
+    Register site owner as a user.
+    """
+
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = SiteOwnerSerializer
 
 
 class GatewayList(APIView):
