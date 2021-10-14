@@ -7,7 +7,7 @@ from rest_framework import permissions
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
 from .models import Gateway, MedicalRecord, SiteOwner, Token, GatewayRecord
-from .serializers import GatewaySerializer, GatewayRecordSerializer
+from .serializers import GatewaySerializer, GatewayRecordSerializer, TokenSerializer
 from cryptography.hazmat.primitives import hashes
 import binascii
 
@@ -169,3 +169,25 @@ class GatewayRecordCreate(generics.CreateAPIView):
             gateway_record.save()
             return Response("Added gateway record")
         return Response("Invalid")
+
+
+class TokenDetail(APIView):
+    """
+    This view retrieves the partial identity of the owner associated with the
+    Token.
+
+    * Requires user to be authenticated
+    """
+
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self, token_uuid):
+        try:
+            return Token.objects.get(token_uuid=token_uuid)
+        except Token.DoesNotExist:
+            raise Http404
+
+    def get(self, request, token_uuid, format=None):
+        token = self.get_object(token_uuid)
+        serializer = TokenSerializer(token)
+        return Response(serializer.data)
