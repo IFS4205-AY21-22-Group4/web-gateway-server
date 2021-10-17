@@ -90,7 +90,7 @@ class Token(models.Model):
     owner = models.ForeignKey(Identity, on_delete=models.PROTECT)
     issuer = models.CharField(max_length=20)
     status = models.BooleanField(default=True)
-    hashed_pin = models.CharField(max_length=32)
+    hashed_pin = models.CharField(max_length=64)
 
     class Meta:
         managed = True
