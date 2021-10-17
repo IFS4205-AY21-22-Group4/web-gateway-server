@@ -8,8 +8,7 @@ User = get_user_model()
 
 class SiteOwnerLoginTestCase(APITestCase):
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setUpTestData(cls):
         cls.siteowner_email = "testuser1@gmail.com"
         cls.siteowner_password = "testpassword1"
         cls.siteowner_postalcode = "610123"
