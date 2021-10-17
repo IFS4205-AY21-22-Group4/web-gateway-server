@@ -1,5 +1,6 @@
 from django.contrib.auth import login
 from django.http import Http404
+from django.db.models import ProtectedError
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -14,6 +15,7 @@ from .serializers import (
     SiteOwnerSerializer,
 )
 from cryptography.hazmat.primitives import hashes
+import hashlib
 import binascii
 
 
@@ -89,7 +91,10 @@ class GatewayList(APIView):
             return Response("No gateways available to delete")
 
         serializer = GatewaySerializer(gateway_to_delete)
-        gateway_to_delete.delete()
+        try:
+            gateway_to_delete.delete()
+        except ProtectedError:
+            return Response("Gateways already in use for contact tracing")
         return Response(serializer.data)
 
 
@@ -123,9 +128,7 @@ class GatewayDetail(APIView):
         elif len(auth) > 2:
             return Response(404)
         token = auth[1]
-        digest = hashes.Hash(hashes.SHA256())
-        digest.update(binascii.unhexlify(token))
-        token_hash = binascii.hexlify(digest.finalize()).decode()
+        token_hash = hashlib.sha256(token.encode()).hexdigest()
 
         site_owner = SiteOwner.objects.get(user=self.request.user)
         gateways = Gateway.objects.filter(site_owner=site_owner)
@@ -157,7 +160,7 @@ class GatewayRecordCreate(generics.CreateAPIView):
             token = Token.objects.filter(token_uuid=token_uuid).first()
             gateway_id = serializer.validated_data.get("gateway_id")
             gateway = Gateway.objects.filter(gateway_id=gateway_id).first()
-            # pin = serializer.validate_data.get("pin")
+            pin = serializer.validated_data.get("pin")
 
             # Check valid token
             if token is None or gateway is None:
@@ -171,7 +174,9 @@ class GatewayRecordCreate(generics.CreateAPIView):
                 return Response("Invalid gateway_id")
 
             # Check Token belongs to owner
-            # TODO Verify PIN number entered
+            verify_pin = hashlib.sha256(pin.encode()).hexdigest()
+            if verify_pin != token.hashed_pin:
+                return Response("Invalid PIN entered")
 
             # Check active token
             if token.status != 1:
