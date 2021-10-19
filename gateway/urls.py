@@ -16,5 +16,5 @@ urlpatterns = [
     path("v1/gateways/", GatewayList.as_view(), name="gateways"),
     path("v1/gateways/<int:pk>", GatewayDetail.as_view(), name="gateways_detail"),
     path("v1/gatewayrecord/", GatewayRecordCreate.as_view(), name="gateway_record"),
-    path("v1/token/<uuid:token_uuid>", TokenDetail.as_view(), name="token"),
+    path("v1/token/<str:token_uuid>", TokenDetail.as_view(), name="token"),
 ]
