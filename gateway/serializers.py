@@ -42,6 +42,8 @@ class SiteOwnerSerializer(serializers.ModelSerializer):
             )
         ],
     )
+    postal_code = serializers.IntegerField()
+    unit_no = serializers.CharField(max_length=10)
     password = serializers.CharField(
         source="user.password", write_only=True, validators=[validate_password]
     )
