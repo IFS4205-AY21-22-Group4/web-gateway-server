@@ -36,19 +36,20 @@ class RegisterView(generics.CreateAPIView):
     """
 
     permission_classes = (permissions.AllowAny,)
-    
+
     def post(self, request, format=None):
         serializer = SiteOwnerSerializer(data=request.data)
         if serializer.is_valid():
             data = request.data
-            user = User.objects.create_user(email=data["email"], password=data["password"])
+            user = User.objects.create_user(
+                email=data["email"], password=data["password"]
+            )
             siteOwner = SiteOwner(user.id, data["postal_code"], data["unit_no"])
             siteOwner.save()
             return Response("Valid")
         else:
             return Response(serializer.errors)
-            
-        
+
 
 class GatewayList(APIView):
     """

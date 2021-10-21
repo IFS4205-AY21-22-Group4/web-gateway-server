@@ -75,5 +75,11 @@ class SiteOwnerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SiteOwner
-        validators = [UniqueTogetherValidator(queryset=SiteOwner.objects.all(), fields=("postal_code", "unit_no"), message="There is already an account for this site")]
+        validators = [
+            UniqueTogetherValidator(
+                queryset=SiteOwner.objects.all(),
+                fields=("postal_code", "unit_no"),
+                message="There is already an account for this site",
+            )
+        ]
         fields = ("email", "password", "password2", "postal_code", "unit_no")
