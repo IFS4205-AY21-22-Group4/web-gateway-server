@@ -65,7 +65,7 @@ class GatewayList(APIView):
         site_owner = SiteOwner.objects.get(user=self.request.user)
         num_gateways = Gateway.objects.filter(site_owner=site_owner).count()
         if num_gateways == 4:
-            return Response("Maximum number of gateways")
+            return Response("Maximum number of gateways", 204)
         next_index = num_gateways + 1
 
         gateway_id = f"{site_owner.postal_code}-{site_owner.unit_no}-{next_index}"
@@ -88,13 +88,13 @@ class GatewayList(APIView):
             Gateway.objects.filter(site_owner=site_owner).order_by("gateway_id").last()
         )
         if gateway_to_delete is None:
-            return Response("No gateways available to delete")
+            return Response("No gateways available to delete", 204)
 
         serializer = GatewaySerializer(gateway_to_delete)
         try:
             gateway_to_delete.delete()
         except ProtectedError:
-            return Response("Gateways already in use for contact tracing")
+            return Response("Gateways already in use for contact tracing", 405)
         return Response(serializer.data)
 
 
@@ -132,6 +132,10 @@ class GatewayDetail(APIView):
 
         site_owner = SiteOwner.objects.get(user=self.request.user)
         gateways = Gateway.objects.filter(site_owner=site_owner)
+
+        # Check gateway to update belongs to site owner
+        if gateway not in gateways:
+            return Response("Gateway does not belong to site owner", 403)
 
         # Toggle token value
         if gateway.authentication_token == None:
