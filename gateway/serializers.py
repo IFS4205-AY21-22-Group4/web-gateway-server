@@ -47,7 +47,7 @@ class SiteOwnerSerializer(serializers.ModelSerializer):
     )
     password2 = serializers.CharField(source="user.password2", write_only=True)
     postal_code = serializers.IntegerField()
-    
+
     def validate(self, data):
         if data["user"]["password"] != data["user"]["password2"]:
             raise serializers.ValidationError(
