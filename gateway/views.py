@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import permissions
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
-from .models import Gateway, MedicalRecord, User, SiteOwner, Token, GatewayRecord
+from .models import Gateway, MedicalRecord, SiteOwner, Token, GatewayRecord
 from .serializers import (
     GatewaySerializer,
     GatewayRecordSerializer,
@@ -36,19 +36,7 @@ class RegisterView(generics.CreateAPIView):
     """
 
     permission_classes = (permissions.AllowAny,)
-
-    def post(self, request, format=None):
-        serializer = SiteOwnerSerializer(data=request.data)
-        if serializer.is_valid():
-            data = request.data
-            user = User.objects.create_user(
-                email=data["email"], password=data["password"]
-            )
-            siteOwner = SiteOwner(user.id, data["postal_code"], data["unit_no"])
-            siteOwner.save()
-            return Response("Valid")
-        else:
-            return Response(serializer.errors)
+    serializer_class = SiteOwnerSerializer
 
 
 class GatewayList(APIView):
