@@ -152,8 +152,19 @@ STATIC_ROOT = BASE_DIR / "static"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Additional settings
+from datetime import timedelta
+
+REST_KNOX = {
+    "TOKEN_TTL": timedelta(hours=24),
+}
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
     "http://127.0.0.1:8080",
 ]
+
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "ifs4205group4ay21@gmail.com"  # hide this afterwards
+EMAIL_HOST_PASSWORD = "fupywhzsdgeewhjj"  # hide this afterwards
+EMAIL_USE_TLS = True
