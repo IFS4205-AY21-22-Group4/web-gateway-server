@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
+from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 from .models import Gateway, GatewayRecord, Token, SiteOwner
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
@@ -46,6 +46,7 @@ class SiteOwnerSerializer(serializers.ModelSerializer):
         source="user.password", write_only=True, validators=[validate_password]
     )
     password2 = serializers.CharField(source="user.password2", write_only=True)
+    postal_code = serializers.IntegerField()
 
     def validate(self, data):
         if data["user"]["password"] != data["user"]["password2"]:
@@ -73,4 +74,11 @@ class SiteOwnerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SiteOwner
+        validators = [
+            UniqueTogetherValidator(
+                queryset=SiteOwner.objects.all(),
+                fields=("postal_code", "unit_no"),
+                message="There is already an account for this location",
+            )
+        ]
         fields = ("email", "password", "password2", "postal_code", "unit_no")
