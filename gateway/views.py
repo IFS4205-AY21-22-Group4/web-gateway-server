@@ -17,6 +17,7 @@ from .serializers import (
 from cryptography.hazmat.primitives import hashes
 import hashlib
 import binascii
+from .helpers import verify_email
 
 
 class LoginView(KnoxLoginView):
@@ -26,8 +27,31 @@ class LoginView(KnoxLoginView):
         serializer = AuthTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
+        site_owner = SiteOwner.objects.get(user=user)
+        if not site_owner.email_validated:
+            return Response("Email not verified", 401)
         login(request, user)
         return super(LoginView, self).post(request, format=None)
+
+
+class VerifyEmailView(APIView):
+    """
+    Verifies the email of site owner.
+    """
+
+    permission_classes = (permissions.AllowAny,)
+
+    def get_object(self, key):
+        try:
+            return SiteOwner.objects.get(activation_key=key)
+        except Token.DoesNotExist:
+            raise Http404
+
+    def get(self, request, key, format=None):
+        site_owner = self.get_object(key)
+        site_owner.email_validated = True
+        site_owner.save()
+        return Response("Email successfully verified")
 
 
 class RegisterView(generics.CreateAPIView):
@@ -37,6 +61,21 @@ class RegisterView(generics.CreateAPIView):
 
     permission_classes = (permissions.AllowAny,)
     serializer_class = SiteOwnerSerializer
+
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data["user"]["email"]
+        activation_key = verify_email.generate_activation_key(email=email)
+        email_verification_error = verify_email.sendVerificationEmail(
+            request, activation_key, email
+        )
+        if email_verification_error:
+            return Response("Unable to send email verification. Please try again")
+        site_owner = serializer.save()
+        site_owner.activation_key = activation_key
+        site_owner.save()
+        return Response(f"Account created for {site_owner.user.email}")
 
 
 class GatewayList(APIView):

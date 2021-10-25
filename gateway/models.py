@@ -52,9 +52,11 @@ class User(AbstractUser):
 
 
 class SiteOwner(models.Model):
-    user = models.OneToOneField(User, on_delete=models.PROTECT, primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     postal_code = models.CharField(max_length=6)
     unit_no = models.CharField(max_length=6)
+    activation_key = models.CharField(max_length=255, unique=True)
+    email_validated = models.BooleanField(default=False)
 
     class Meta:
         managed = True
