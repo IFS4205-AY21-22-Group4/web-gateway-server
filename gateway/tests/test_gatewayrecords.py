@@ -26,6 +26,8 @@ class GatewayRecordTestCase(APITestCase):
             user=cls.user,
             postal_code=cls.siteowner_postalcode,
             unit_no=cls.siteowner_unitno,
+            activation_key=1234,
+            email_validated=True,
         )
         login_url = reverse("login")
         login_data = {
@@ -50,6 +52,8 @@ class GatewayRecordTestCase(APITestCase):
             user=cls.user2,
             postal_code=cls.siteowner2_postalcode,
             unit_no=cls.siteowner2_unitno,
+            activation_key=4321,
+            email_validated=True,
         )
 
         # Add a gateway for siteowner1
