@@ -1,10 +1,9 @@
 from django.urls import reverse
+from django.contrib.auth.hashers import make_password
 from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth import get_user_model
 from ..models import SiteOwner, Gateway, Identity, Token, MedicalRecord
 import uuid
-import hashlib
-import binascii
 
 User = get_user_model()
 
@@ -78,7 +77,7 @@ class GatewayRecordTestCase(APITestCase):
             phone_num="91234567",
         )
 
-        hashed_pin = hashlib.sha256(b"123456").hexdigest()
+        hashed_pin = make_password("123456")
         cls.token = Token.objects.create(
             token_uuid=str(uuid.uuid4()),
             issuer=1,
@@ -101,7 +100,7 @@ class GatewayRecordTestCase(APITestCase):
             phone_num="92234567",
         )
 
-        hashed_pin = hashlib.sha256(b"654321").hexdigest()
+        hashed_pin = make_password("654321")
         cls.inactive_token = Token.objects.create(
             token_uuid=str(uuid.uuid4()),
             issuer=1,
@@ -124,7 +123,7 @@ class GatewayRecordTestCase(APITestCase):
             phone_num="93234567",
         )
 
-        hashed_pin = hashlib.sha256(b"123456").hexdigest()
+        hashed_pin = make_password("123456")
         cls.unvax_token = Token.objects.create(
             token_uuid=str(uuid.uuid4()),
             issuer=1,

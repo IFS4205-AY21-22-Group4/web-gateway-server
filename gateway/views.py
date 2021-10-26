@@ -1,4 +1,5 @@
 from django.contrib.auth import login
+from django.contrib.auth.hashers import check_password
 from django.http import Http404
 from django.db.models import ProtectedError
 from rest_framework import generics
@@ -14,9 +15,7 @@ from .serializers import (
     TokenSerializer,
     SiteOwnerSerializer,
 )
-from cryptography.hazmat.primitives import hashes
 import hashlib
-import binascii
 from .helpers import verify_email
 
 
@@ -217,8 +216,7 @@ class GatewayRecordCreate(generics.CreateAPIView):
                 return Response("Invalid gateway_id")
 
             # Check Token belongs to owner
-            verify_pin = hashlib.sha256(pin.encode()).hexdigest()
-            if verify_pin != token.hashed_pin:
+            if not check_password(pin, token.hashed_pin):
                 return Response("Invalid PIN entered")
 
             # Check active token
