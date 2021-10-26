@@ -63,6 +63,23 @@ class SiteOwner(models.Model):
         db_table = "siteowner"
 
 
+class Staff(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    roles = models.CharField(max_length=20, blank=True)
+    activation_key = models.CharField(
+        max_length=255, default=1
+    )  # link for email verification
+    most_recent_otp = models.CharField(
+        max_length=6, blank=True
+    )  # value for otp verification
+    email_validated = models.BooleanField(default=False)  # verify email inputted
+    is_verified = models.BooleanField(default=False)  # verify otp inputted
+    number_of_attempts = models.IntegerField(default=0)  # count number of attempts
+
+    class Meta:
+        db_table = "staff"
+
+
 class Gateway(models.Model):
     gateway_id = models.CharField(max_length=15, unique=True)
     site_owner = models.ForeignKey(SiteOwner, on_delete=models.CASCADE)
@@ -101,7 +118,7 @@ class Token(models.Model):
 
 class MedicalRecord(models.Model):
     identity = models.OneToOneField(Identity, on_delete=models.PROTECT)
-    token = models.ForeignKey(Token, on_delete=models.PROTECT)
+    token = models.ForeignKey(Token, on_delete=models.PROTECT, blank=True, null=True)
     vaccination_status = models.BooleanField(default=False)
 
     class Meta:
