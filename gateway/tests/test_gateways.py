@@ -26,6 +26,8 @@ class GatewayTestCase(APITestCase):
             user=cls.user,
             postal_code=cls.siteowner_postalcode,
             unit_no=cls.siteowner_unitno,
+            activation_key=1234,
+            email_validated=True,
         )
         login_url = reverse("login")
         login_data = {

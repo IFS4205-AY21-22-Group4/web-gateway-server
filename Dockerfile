@@ -13,13 +13,17 @@ RUN mkdir -p $SERVICE/static
 # Set work directory
 WORKDIR $SERVICE
 
-# Install necessary packages
-RUN apt-get install -y libmariadb-dev
-
 # Set python environment variables
 ENV PYTHONUNBUFFERED=1
+
+# Install necessary packages
+RUN apt-get install -y libmariadb-dev
 
 # Install dependencies
 RUN pip install --upgrade pip
 COPY . $SERVICE
 RUN pip install -r requirements.txt
+
+# Run as unprivileged
+RUN chown -R web-gateway:web-gateway $SERVICE
+USER web-gateway

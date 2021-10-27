@@ -52,13 +52,32 @@ class User(AbstractUser):
 
 
 class SiteOwner(models.Model):
-    user = models.OneToOneField(User, on_delete=models.PROTECT, primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     postal_code = models.CharField(max_length=6)
     unit_no = models.CharField(max_length=6)
+    activation_key = models.CharField(max_length=255, unique=True)
+    email_validated = models.BooleanField(default=False)
 
     class Meta:
         managed = True
         db_table = "siteowner"
+
+
+class Staff(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    roles = models.CharField(max_length=20, blank=True)
+    activation_key = models.CharField(
+        max_length=255, default=1
+    )  # link for email verification
+    most_recent_otp = models.CharField(
+        max_length=6, blank=True
+    )  # value for otp verification
+    email_validated = models.BooleanField(default=False)  # verify email inputted
+    is_verified = models.BooleanField(default=False)  # verify otp inputted
+    number_of_attempts = models.IntegerField(default=0)  # count number of attempts
+
+    class Meta:
+        db_table = "staff"
 
 
 class Gateway(models.Model):
@@ -90,7 +109,7 @@ class Token(models.Model):
     owner = models.ForeignKey(Identity, on_delete=models.PROTECT)
     issuer = models.CharField(max_length=20)
     status = models.BooleanField(default=True)
-    hashed_pin = models.CharField(max_length=64)
+    hashed_pin = models.CharField(max_length=128)
 
     class Meta:
         managed = True
@@ -99,7 +118,7 @@ class Token(models.Model):
 
 class MedicalRecord(models.Model):
     identity = models.OneToOneField(Identity, on_delete=models.PROTECT)
-    token = models.ForeignKey(Token, on_delete=models.PROTECT)
+    token = models.ForeignKey(Token, on_delete=models.PROTECT, blank=True, null=True)
     vaccination_status = models.BooleanField(default=False)
 
     class Meta:
