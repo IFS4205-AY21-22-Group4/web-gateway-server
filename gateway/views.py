@@ -208,14 +208,14 @@ class GatewayRecordCreate(generics.CreateAPIView):
 
             # Check valid token (active)
             if token is None or gateway is None:
-                return Response("Invalid token or gateway.")
+                return Response("Invalid token or gateway")
 
             # Check gateway belongs to authenticated site owner
             user = self.request.user
             site_owner = SiteOwner.objects.get(user=user)
 
             if gateway.site_owner != site_owner:
-                return Response("Invalid gateway_id")
+                return Response("Invalid gateway")
 
             # Check Token belongs to owner
             if not check_password(pin, token.hashed_pin):
