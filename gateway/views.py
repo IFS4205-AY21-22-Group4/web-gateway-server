@@ -199,7 +199,9 @@ class GatewayRecordCreate(generics.CreateAPIView):
         serializer = GatewayRecordSerializer(data=request.data)
         if serializer.is_valid():
             token_uuid = serializer.validated_data.get("token_uuid")
-            token = Token.objects.filter(token_uuid=token_uuid).first()
+            token = (
+                Token.objects.filter(token_uuid=token_uuid).filter(status=True).first()
+            )
             gateway_id = serializer.validated_data.get("gateway_id")
             gateway = Gateway.objects.filter(gateway_id=gateway_id).first()
             pin = serializer.validated_data.get("pin")
