@@ -3,7 +3,6 @@ from django.contrib.auth.hashers import make_password
 from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth import get_user_model
 from ..models import SiteOwner, Gateway, Identity, Token, MedicalRecord
-import uuid
 
 User = get_user_model()
 
@@ -79,7 +78,7 @@ class GatewayRecordTestCase(APITestCase):
 
         hashed_pin = make_password("123456")
         cls.token = Token.objects.create(
-            token_uuid=str(uuid.uuid4()),
+            token_uuid="c5:d7:14:84:f8:cf",
             issuer=1,
             status=True,
             hashed_pin=hashed_pin,
@@ -102,7 +101,7 @@ class GatewayRecordTestCase(APITestCase):
 
         hashed_pin = make_password("654321")
         cls.inactive_token = Token.objects.create(
-            token_uuid=str(uuid.uuid4()),
+            token_uuid="9b:f4:b7:6f:47:90",
             issuer=1,
             status=False,
             hashed_pin=hashed_pin,
@@ -125,7 +124,7 @@ class GatewayRecordTestCase(APITestCase):
 
         hashed_pin = make_password("123456")
         cls.unvax_token = Token.objects.create(
-            token_uuid=str(uuid.uuid4()),
+            token_uuid="47:30:80:4b:9e:32",
             issuer=1,
             status=True,
             hashed_pin=hashed_pin,
@@ -149,14 +148,14 @@ class GatewayRecordTestCase(APITestCase):
     def test_gatewayrecord_invalid_token_return_invalid(self):
         gatewayrecord_url = reverse("gateway_record")
         record_data = {
-            "token_uuid": str(uuid.uuid4()),
+            "token_uuid": "25:a9:f1:33:b5:de",
             "gateway_id": self.gateway.gateway_id,
             "pin": "123456",
         }
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.siteowner_auth_token)
         response = self.client.post(gatewayrecord_url, record_data)
 
-        self.assertEqual(response.data, "Invalid token_uuid or gateway_id")
+        self.assertEqual(response.data, "Invalid token or gateway")
 
     def test_gatewayrecord_invalid_gateway_return_invalid(self):
         gatewayrecord_url = reverse("gateway_record")
@@ -168,7 +167,7 @@ class GatewayRecordTestCase(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.siteowner_auth_token)
         response = self.client.post(gatewayrecord_url, record_data)
 
-        self.assertEqual(response.data, "Invalid token_uuid or gateway_id")
+        self.assertEqual(response.data, "Invalid token or gateway")
 
     def test_gatewayrecord_invalid_gateway_owner_return_invalid(self):
         gatewayrecord_url = reverse("gateway_record")
@@ -180,7 +179,7 @@ class GatewayRecordTestCase(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.siteowner_auth_token)
         response = self.client.post(gatewayrecord_url, record_data)
 
-        self.assertEqual(response.data, "Invalid gateway_id")
+        self.assertEqual(response.data, "Invalid gateway")
         pass
 
     def test_gatewayrecord_valid_pin_return_added(self):
@@ -217,7 +216,7 @@ class GatewayRecordTestCase(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.siteowner_auth_token)
         response = self.client.post(gatewayrecord_url, record_data)
 
-        self.assertEqual(response.data, "Token inactive")
+        self.assertEqual(response.data, "Invalid token or gateway")
 
         pass
 

@@ -199,29 +199,27 @@ class GatewayRecordCreate(generics.CreateAPIView):
         serializer = GatewayRecordSerializer(data=request.data)
         if serializer.is_valid():
             token_uuid = serializer.validated_data.get("token_uuid")
-            token = Token.objects.filter(token_uuid=token_uuid).first()
+            token = (
+                Token.objects.filter(token_uuid=token_uuid).filter(status=True).first()
+            )
             gateway_id = serializer.validated_data.get("gateway_id")
             gateway = Gateway.objects.filter(gateway_id=gateway_id).first()
             pin = serializer.validated_data.get("pin")
 
-            # Check valid token
+            # Check valid token (active)
             if token is None or gateway is None:
-                return Response("Invalid token_uuid or gateway_id")
+                return Response("Invalid token or gateway")
 
             # Check gateway belongs to authenticated site owner
             user = self.request.user
             site_owner = SiteOwner.objects.get(user=user)
 
             if gateway.site_owner != site_owner:
-                return Response("Invalid gateway_id")
+                return Response("Invalid gateway")
 
             # Check Token belongs to owner
             if not check_password(pin, token.hashed_pin):
                 return Response("Invalid PIN entered")
-
-            # Check active token
-            if token.status != 1:
-                return Response("Token inactive")
 
             # Get vaccination status
             medical_record = MedicalRecord.objects.get(identity=token.owner)
