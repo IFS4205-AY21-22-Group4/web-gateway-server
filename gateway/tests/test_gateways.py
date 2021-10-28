@@ -109,7 +109,7 @@ class GatewayTestCase(APITestCase):
         )
         token = Token.objects.create(
             token_uuid="c5:d7:14:84:f8:cf",
-            issuer=1,
+            issuer=None,
             status=1,
             hashed_pin=hex(random.getrandbits(256))[2:],
             owner=identity,
@@ -129,8 +129,8 @@ class GatewayTestCase(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.siteowner_auth_token)
         response = self.client.delete(gateway_url)
 
-        self.assertTrue(response.status_code, 200)
-        self.assertEqual(response.data, "No gateways available to delete")
+        self.assertTrue(response.status_code, 204)
+        self.assertEqual(response.data, "")
 
     def test_siteowner_with_auth_token_can_toggle_gateway_auth_token(self):
         # Add gateway
