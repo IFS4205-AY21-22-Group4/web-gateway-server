@@ -126,7 +126,7 @@ class GatewayList(APIView):
             Gateway.objects.filter(site_owner=site_owner).order_by("gateway_id").last()
         )
         if gateway_to_delete is None:
-            return Response("No gateways available to delete", 204)
+            return Response("", 204)
 
         serializer = GatewaySerializer(gateway_to_delete)
         try:

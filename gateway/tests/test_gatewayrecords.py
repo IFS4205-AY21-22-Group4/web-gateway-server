@@ -79,7 +79,7 @@ class GatewayRecordTestCase(APITestCase):
         hashed_pin = make_password("123456")
         cls.token = Token.objects.create(
             token_uuid="c5:d7:14:84:f8:cf",
-            issuer=1,
+            issuer=None,
             status=True,
             hashed_pin=hashed_pin,
             owner=identity,
@@ -102,7 +102,7 @@ class GatewayRecordTestCase(APITestCase):
         hashed_pin = make_password("654321")
         cls.inactive_token = Token.objects.create(
             token_uuid="9b:f4:b7:6f:47:90",
-            issuer=1,
+            issuer=None,
             status=False,
             hashed_pin=hashed_pin,
             owner=identity,
@@ -125,7 +125,7 @@ class GatewayRecordTestCase(APITestCase):
         hashed_pin = make_password("123456")
         cls.unvax_token = Token.objects.create(
             token_uuid="47:30:80:4b:9e:32",
-            issuer=1,
+            issuer=None,
             status=True,
             hashed_pin=hashed_pin,
             owner=identity,

@@ -107,7 +107,7 @@ class Identity(models.Model):
 class Token(models.Model):
     token_uuid = models.CharField(max_length=17)
     owner = models.ForeignKey(Identity, on_delete=models.PROTECT)
-    issuer = models.CharField(max_length=20)
+    issuer = models.ForeignKey(Staff, null=True, on_delete=models.SET_NULL)
     status = models.BooleanField(default=True)
     hashed_pin = models.CharField(max_length=128)
 
