@@ -3,7 +3,6 @@ from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth import get_user_model
 from ..models import SiteOwner, Gateway, Identity, Token, GatewayRecord
 import binascii
-import uuid
 import random
 import hashlib
 
@@ -109,7 +108,7 @@ class GatewayTestCase(APITestCase):
             phone_num="91234567",
         )
         token = Token.objects.create(
-            token_uuid=str(uuid.uuid4()),
+            token_uuid="c5:d7:14:84:f8:cf",
             issuer=1,
             status=1,
             hashed_pin=hex(random.getrandbits(256))[2:],
