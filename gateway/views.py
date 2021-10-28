@@ -132,7 +132,7 @@ class GatewayList(APIView):
         try:
             gateway_to_delete.delete()
         except ProtectedError:
-            return Response("Gateways already in use for contact tracing", 405)
+            return Response("", 204)
         return Response(serializer.data)
 
 

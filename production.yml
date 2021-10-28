@@ -14,6 +14,7 @@ services:
       - PROXY=1
       - PARANOIA=1
       - BACKEND=http://web:8000
+      - ALLOWED_METHODS=GET HEAD POST OPTIONS DELETE PUT
     restart: on-failure
   web:
     build: .

@@ -121,8 +121,8 @@ class GatewayTestCase(APITestCase):
         # Delete gateway
         response = self.client.delete(gateway_url)
 
-        self.assertTrue(response.status_code, 200)
-        self.assertEqual(response.data, "Gateways already in use for contact tracing")
+        self.assertTrue(response.status_code, 204)
+        self.assertEqual(response.data, "")
 
     def test_siteowner_cannot_remove_empty_gateways(self):
         gateway_url = reverse("gateways")
