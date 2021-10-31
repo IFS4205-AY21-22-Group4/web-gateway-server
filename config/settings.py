@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,10 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-p80rw_)3!yyk%j5*9df+r3k8v@t%f!0=v2nxr62cls-40njb1w"
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = []
 
@@ -94,15 +95,28 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "pandemic_project",
-        "USER": "root",
-        "PASSWORD": "mariadb",
+        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.environ.get("SQL_DATABASE", BASE_DIR / "db.sqlite3"),
+        "USER": os.environ.get("SQL_USER", "mariadb"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "mariadb"),
         "DEFAULT_CHARSET": "utf-8",
-        "HOST": "127.0.0.1",
-        "PORT": "3306",
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "3306"),
     }
 }
+
+if os.environ.get("GITHUB_ACTIONS"):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": "pandemic_project",
+            "USER": "root",
+            "PASSWORD": "mariadb",
+            "DEFAULT_CHARSET": "utf-8",
+            "HOST": "127.0.0.1",
+            "PORT": "3306",
+        }
+    }
 
 
 # Password validation
@@ -164,6 +178,6 @@ CORS_ALLOWED_ORIGINS = [
 
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "ifs4205group4ay21@gmail.com"  # hide this afterwards
-EMAIL_HOST_PASSWORD = "fupywhzsdgeewhjj"  # hide this afterwards
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = True
