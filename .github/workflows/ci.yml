@@ -45,8 +45,12 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
     - name: Migrate to database
+      env:
+        SECRET_KEY: github_actions
       run: python manage.py makemigrations && python manage.py migrate
 
     - name: Run Tests
+      env:
+        SECRET_KEY: github_actions
       run: |
         python manage.py test -v 2

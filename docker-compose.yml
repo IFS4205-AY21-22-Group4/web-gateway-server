@@ -9,6 +9,8 @@ services:
       - .:/code
     ports:
       - "8000:8000"
+    env_file:
+      - ./.env
 
 # assuming database up and running using docker-compose
 networks:

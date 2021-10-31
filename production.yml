@@ -28,6 +28,8 @@ services:
       web-gateway-app
     expose:
       - "8000"
+    env_file:
+      - ./.env
     restart: on-failure
 
 volumes:
