@@ -4,11 +4,10 @@ LABEL maintainer="isabharon@gmail.com"
 
 # Create user and group
 ENV SERVICE=/home/app/web-gateway
-RUN addgroup --system web-gateway && adduser --system web-gateway --group
+RUN useradd -m web-gateway
 
 # Create app directories
 RUN mkdir -p $SERVICE
-RUN mkdir -p $SERVICE/static
 
 # Set work directory
 WORKDIR $SERVICE
@@ -19,11 +18,13 @@ ENV PYTHONUNBUFFERED=1
 # Install necessary packages
 RUN apt-get install -y libmariadb-dev
 
-# Install dependencies
-RUN pip install --upgrade pip
 COPY . $SERVICE
-RUN pip install -r requirements.txt
+RUN chown -R web-gateway:web-gateway $SERVICE
 
 # Run as unprivileged
-RUN chown -R web-gateway:web-gateway $SERVICE
 USER web-gateway
+ENV PATH="/home/web-gateway/.local/bin:${PATH}"
+
+# Install dependencies
+RUN pip install --upgrade pip --user
+RUN pip install -r requirements.txt --user
